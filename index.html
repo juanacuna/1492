@@ -1,0 +1,167 @@
+<html>
+<head>
+	<title>1942 Game</title>
+
+<style type="text/css">
+	body{
+		background-color:black;
+	}
+	#container{
+		background: url('img/sky.png');
+		width:1000px;
+		height:550px;
+	}
+	#hero{
+		background: url('img/1942.gif');
+		background-position: -30px -10px;
+		width:28px;
+		height:28px;
+		position:absolute;
+	}
+	.enemy1{
+		background: url('img/1942.gif');
+		background-position: -85px -180px;
+		width:28px;
+		height:28px;
+		position:absolute;
+	}
+	.enemy2{
+		background: url('img/1942.gif');
+		background-position: -41px -110px;
+		width: 47px;
+		height: 42px;
+		position: absolute;
+	}
+	.bullet{
+		background: url('img/1942.gif');
+		background-position: -50px -431px;
+		width:6px;
+		height:6px;
+		position:absolute;
+	}
+	#score{
+		position:absolute;
+		border:10px solid red;
+		top:20px;
+		left:800px;
+		background-color:white;
+		padding:10px;
+		font-size:30px;
+		font-family: Arial;	
+	}
+</style>
+</head>
+<body>
+	<div id='container'>
+		<div id='hero'></div>
+		<div id='enemies'></div>
+		<div id='bullets'></div>	
+	</div>
+
+	<div id='score'>100</div>
+
+
+<script>
+
+    var hero = {
+        x : 500,
+        y : 500
+    }
+
+	var enemies =[
+		{y:100, x: 100, type: "small"},{y:150, x: 200, type: "small"},{y:250, x: 300, type: "small"},{y:120, x: 400, type: "small"},{y:30, x: 500, type: "small"},{y:90, x: 600, type: "small"},{y:230, x: 700, type: "small"},
+		{y:20, x: 150, type: "big"}, {y:130, x:350, type: "big"}, {y:70, x:550, type: "big"}];
+	var bullets0 = [];
+	var bullets1 =[];
+    function displayHero(){
+        document.getElementById('hero').style.top =hero.y+"px";
+        document.getElementById('hero').style.left =hero.x+"px";
+    }
+	function displayEnemies() {
+		output = '';
+		for(var i = 0; i < enemies.length; i++){
+			if (enemies[i].type == "small"){
+				output += "<div class='enemy1'style='top:"+enemies[i].y+"px; left:"+enemies[i].x+"px'></div>";
+			}
+			else{
+				output += "<div class='enemy2'style='top:"+enemies[i].y+"px; left:"+enemies[i].x+"px'></div>";
+			}
+		}
+		document.getElementById('enemies').innerHTML = output;
+	}
+	function moveEnemies(){
+		for(var i = 0; i < enemies.length; i++){
+			enemies[i].y += 5;
+			if(enemies[i].y == 540){
+				enemies[i].y = 10;
+				enemies[i].x = Math.random()*900;
+			}
+		}
+		displayEnemies();
+	}
+	function displayBullets(){
+		var output = '';
+		for(var i = 0; i < bullets0.length; i++){
+			output += "<div class='bullet'style='top:"+bullets0[i].y+"px; left:"+bullets0[i].x+"px'></div>";
+			output += "<div class='bullet'style='top:"+bullets1[i].y+"px; left:"+bullets1[i].x+"px'></div>";
+		}
+		document.getElementById('bullets').innerHTML = output;
+	}
+	function moveBullets() {
+		for(var i = 0; i < bullets0.length; i++){
+			bullets0[i].y -= 5;
+			bullets1[i].y -= 5;
+			if(bullets0[i].y < 0){
+				bullets0[i] = bullets0[bullets0.length-1]
+				bullets1[i] = bullets1[bullets1.length-1]
+				bullets0.pop();
+				bullets1.pop();
+			}
+		}
+		displayBullets();
+	}
+	
+	function detectCollision() {
+		for (var i = 0; i < bullets0.length; i++){
+			for (var j = 0; j < enemies.length; j++){
+				if (Math.abs(bullets0[i].x - enemies[j].x) < 10 && Math.abs(bullets0[i].y - enemies[j].y) < 10){
+					console.log('bullet', i, 'and enemy', j, 'collided');
+				}
+			}
+		}
+	}
+
+    displayHero();
+	displayEnemies();
+	function gameLoop() {
+		moveEnemies();
+		moveBullets();
+		displayBullets();
+		detectCollision();
+	}
+	setInterval('gameLoop()', 100);
+	
+	document.onkeydown = function(mov_data){
+		if(mov_data.keyCode == 37 && hero.x-1 > 20){
+			hero.x -= 10;
+		}
+		if(mov_data.keyCode == 39 && hero.x+1 < 980){
+			hero.x += 10;
+		}
+		if(mov_data.keyCode == 38 && hero.y-1 > 100){
+			hero.y -= 10;
+		}
+		if(mov_data.keyCode == 40 && hero.y+1 < 530){
+			hero.y += 10;
+		}
+		if (mov_data.keyCode == 32){
+			bullets0.push({x : hero.x + 8, y : hero.y-5});
+			bullets1.push({x : hero.x + 16, y : hero.y-5});
+			displayBullets();
+		}
+		displayHero();
+	}
+</script>
+
+</body>
+</html>
